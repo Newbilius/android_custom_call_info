@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" android:baselineAligned="false" android:background="#ffffff"
+              android:id="@+id/MainLinear">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_weight="1">
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Номер телефона звонящего"
+                android:textColor="#000000" android:textSize="20dp"
+                android:layout_marginLeft="20dp"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="XXX"
+                android:id="@+id/textViewNumber" android:textColor="#000000" android:textSize="22dp"
+                android:layout_marginLeft="20dp"/>
+    </LinearLayout>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Закрыть"
+            android:id="@+id/buttonClose" android:layout_weight="0"/>
+</LinearLayout>
