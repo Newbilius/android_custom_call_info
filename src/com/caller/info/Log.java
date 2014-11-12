@@ -1,9 +1,9 @@
 package com.caller.info;
 
 public class Log {
-    private static String code="hh42";
+    private final static String LOG_CODE ="hh42";
 
-    public static void Debug(String s){
-        android.util.Log.d(code,s);
+    public static void debug(String s){
+        android.util.Log.d(LOG_CODE,s);
     }
 }

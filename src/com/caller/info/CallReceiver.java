@@ -10,52 +10,50 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class CallReceiver extends BroadcastReceiver {
-    private static String PhoneNumber = "";
-    private static boolean Incoming = false;
+    private static boolean incomingCall = false;
     private static WindowManager windowManager;
-    private static ViewGroup layoutInfo;
-    private static LayoutInflater layoutInflater;
+    private static ViewGroup windowLayout;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
-            String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-            if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-
-                PhoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-                Incoming = true;
-
-                Log.Debug("Show window: " + PhoneNumber);
-
+            String phoneState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+            if (phoneState.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                //
                 /*
                 try {
-                    //грязноватый хак, но можно использовать для надёжности
+                    //Грязноватый хак, рекомендуемый многими примерами в сети, но не обязательный
                     Thread.sleep(1000);
                 } catch (InterruptedException ie) {
                     //ну и ладно
                 }*/
+                String phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+                incomingCall = true;
+                Log.debug("Show window: " + phoneNumber);
+                showWindow(context, phoneNumber);
 
-                ShowWindow(context,PhoneNumber);
-
-            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
-                //телефон находится в режиме звонка (набор номера / разговор) - закрываем окно
-                if (Incoming) {
-                    Log.Debug("Close window.");
-                    CloseWindow();
-                    Incoming = false;
+            } else if (phoneState.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+                //Телефон находится в режиме звонка (набор номера / разговор) - закрываем окно, что бы не мешать
+                if (incomingCall) {
+                    Log.debug("Close window.");
+                    closeWindow();
+                    incomingCall = false;
                 }
-            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                //телефон находиться в ждущем режиме. Это событие наступает по окончанию разговора.
-                Log.Debug("Close window.");
-                CloseWindow();
-                Incoming = false;
+            } else if (phoneState.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                //Телефон находится в ждущем режиме - это событие наступает по окончанию разговора
+                //или в ситуации "отказался поднимать трубку и сбросил звонок"
+                if (incomingCall) {
+                    Log.debug("Close window.");
+                    closeWindow();
+                    incomingCall = false;
+                }
             }
         }
     }
 
-    private void ShowWindow(Context context,String phone) {
+    private void showWindow(Context context, String phone) {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -65,25 +63,25 @@ public class CallReceiver extends BroadcastReceiver {
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP;
 
-        layoutInfo = (ViewGroup) layoutInflater.inflate(R.layout.info, null);
+        windowLayout = (ViewGroup) layoutInflater.inflate(R.layout.info, null);
 
-        TextView textViewNumber=(TextView)layoutInfo.findViewById(R.id.textViewNumber);
-        Button buttonClose=(Button)layoutInfo.findViewById(R.id.buttonClose);
+        TextView textViewNumber=(TextView) windowLayout.findViewById(R.id.textViewNumber);
+        Button buttonClose=(Button) windowLayout.findViewById(R.id.buttonClose);
         textViewNumber.setText(phone);
         buttonClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CloseWindow();
+                closeWindow();
             }
         });
 
-        windowManager.addView(layoutInfo, params);
+        windowManager.addView(windowLayout, params);
     }
 
-    private void CloseWindow() {
-        if (layoutInfo!=null){
-            windowManager.removeView(layoutInfo);
-            layoutInfo=null;
+    private void closeWindow() {
+        if (windowLayout !=null){
+            windowManager.removeView(windowLayout);
+            windowLayout =null;
         }
     }
 }
